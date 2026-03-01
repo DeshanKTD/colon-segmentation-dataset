@@ -62,7 +62,7 @@ def initialize_data(data_path=None):
     
     os.makedirs(data_dir, exist_ok=True)
     
-    meta_data_path = os.path.join(base_dir, 'metadata.jsonl')
+    meta_data_path = os.path.join(base_dir, 'filtered_metadata.jsonl')
     meta_data_df = pd.read_json(meta_data_path, lines=True)
     
     series_name_mapping = meta_data_df.set_index('InstanceUID')['name'].to_dict()
@@ -159,10 +159,6 @@ def process_series(series_uid):
                 if success == "Success":
                     # deleted the original ZIP after conversion
                     os.remove(zip_path)
-                    
-                    # os.makedirs(os.path.join(raw_directory, subject_id), exist_ok=True)
-                    # destination_path = os.path.join(raw_directory, f"{subject_id}/{filename}.zip")
-                    # shutil.move(zip_path, destination_path)
                     
                 return success
 
