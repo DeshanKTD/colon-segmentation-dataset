@@ -157,9 +157,13 @@ def process_series(series_uid):
 
                 # Save zipped DICOM file in raw/<subject>/<filename>.zip on success
                 if success == "Success":
-                    os.makedirs(os.path.join(raw_directory, subject_id), exist_ok=True)
-                    destination_path = os.path.join(raw_directory, f"{subject_id}/{filename}.zip")
-                    shutil.move(zip_path, destination_path)
+                    # deleted the original ZIP after conversion
+                    os.remove(zip_path)
+                    
+                    # os.makedirs(os.path.join(raw_directory, subject_id), exist_ok=True)
+                    # destination_path = os.path.join(raw_directory, f"{subject_id}/{filename}.zip")
+                    # shutil.move(zip_path, destination_path)
+                    
                 return success
 
     except Exception as e:
@@ -237,6 +241,7 @@ def convert_manually_downloaded():
             destination_path = os.path.join(raw_directory, f"{subject_id}/{filename}.zip")
             # If you want to move/copy the original ZIP into raw as well, uncomment:
             # shutil.move(series_path, destination_path)
+            
 
 def download(files):
     collection_name = "CT COLONOGRAPHY"
