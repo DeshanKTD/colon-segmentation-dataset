@@ -23,6 +23,7 @@ import shutil
 import pandas as pd
 import gzip
 from pathlib import Path
+import argparse
 
 # --- Public NBIA (TCIA) v1 base URL (no API key needed for public data) ---
 BASE_URL = "https://services.cancerimagingarchive.net/nbia-api/services/v1"
@@ -226,9 +227,34 @@ def download(files):
     collection_name = "CT COLONOGRAPHY"
     download_series(collection_name, files=files)
 
+
+def read_collection():
+    """Extract instanceUID list from metadata.jsonl and download all series."""
+    instance_uids = meta_data_df['InstanceUID'].tolist()
+    
+    return instance_uids
+    
+
 if __name__ == "__main__":
-    files = [
+    parser = argparse.ArgumentParser(description="Download CT Colonography dataset")
+    parser.add_argument(
+        "--mode",
+        choices=["custom", "all"],
+        default="custom",
+        help="Download mode: 'custom' for specific files or 'all' for entire collection from metadata.jsonl"
+    )
+    args = parser.parse_args()
+    
+    custom_files = [
         "1.3.6.1.4.1.9328.50.4.850207",
         "1.3.6.1.4.1.9328.50.4.849142"
     ]
+    
+    if args.mode == "all":
+        files = read_collection()
+        print(f"Downloading all {len(files)} files from collection...")
+    else:
+        files = custom_files
+        print(f"Downloading {len(files)} custom files...")
+    
     download(files)
