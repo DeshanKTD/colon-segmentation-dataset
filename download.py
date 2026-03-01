@@ -44,23 +44,38 @@ def read_txt_to_dict(file_path):
     return data_dict
 
 base_dir = Path(__file__).resolve().parent
-data_dir = os.path.join(base_dir, 'data')
-os.makedirs(data_dir, exist_ok=True)
+data_dir = None  # Will be initialized in main based on args
+meta_data_df = None
+series_name_mapping = None
+sub_id_mapping = None
+loaded_data_file = None
+downloaded_series = None
 
-meta_data_path = os.path.join(base_dir, 'metadata.jsonl')
-meta_data_df = pd.read_json(meta_data_path, lines=True)
-
-series_name_mapping = meta_data_df.set_index('InstanceUID')['name'].to_dict()
-sub_id_mapping = meta_data_df.set_index('InstanceUID')['new_sub_id'].to_dict()
-
-loaded_data_file = os.path.join(base_dir, 'loaded_data.txt')
-if not os.path.exists(loaded_data_file):
-    with open(loaded_data_file, 'w'):
-        pass
-    print(f"File created: {loaded_data_file}")
-
-loaded_data = read_txt_to_dict(loaded_data_file)
-downloaded_series = set(loaded_data.keys())
+def initialize_data(data_path=None):
+    """Initialize data directory and metadata mappings."""
+    global data_dir, meta_data_df, series_name_mapping, sub_id_mapping, loaded_data_file, downloaded_series
+    
+    if data_path is None:
+        data_dir = os.path.join(base_dir, 'data')
+    else:
+        data_dir = data_path
+    
+    os.makedirs(data_dir, exist_ok=True)
+    
+    meta_data_path = os.path.join(base_dir, 'metadata.jsonl')
+    meta_data_df = pd.read_json(meta_data_path, lines=True)
+    
+    series_name_mapping = meta_data_df.set_index('InstanceUID')['name'].to_dict()
+    sub_id_mapping = meta_data_df.set_index('InstanceUID')['new_sub_id'].to_dict()
+    
+    loaded_data_file = os.path.join(base_dir, 'loaded_data.txt')
+    if not os.path.exists(loaded_data_file):
+        with open(loaded_data_file, 'w'):
+            pass
+        print(f"File created: {loaded_data_file}")
+    
+    loaded_data = read_txt_to_dict(loaded_data_file)
+    downloaded_series = set(loaded_data.keys())
 
 def compress_file_gz(source_path: str):
     """Compress a file to <path>.gz and remove the original."""
@@ -243,7 +258,17 @@ if __name__ == "__main__":
         default="custom",
         help="Download mode: 'custom' for specific files or 'all' for entire collection from metadata.jsonl"
     )
+    parser.add_argument(
+        "--data-dir",
+        type=str,
+        default=None,
+        help="Data directory path (default: ./data)"
+    )
     args = parser.parse_args()
+    
+    # Initialize data with custom or default directory
+    initialize_data(args.data_dir)
+    print(f"Using data directory: {data_dir}")
     
     custom_files = [
         "1.3.6.1.4.1.9328.50.4.850207",
