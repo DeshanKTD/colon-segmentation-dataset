@@ -48,7 +48,7 @@ def rename_files(folder_path, naming_conv):
     with open(jsonl_path, 'r') as infile:
         records = [json.loads(line.strip()) for line in infile]
     for record in records:
-        old_name = record['file_name']
+        old_name = record['image_name']
         new_name = record['annotation_name']
         index = record['index']
         
